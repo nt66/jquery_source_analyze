@@ -290,6 +290,7 @@ jQuery.extend = jQuery.fn.extend = function() {
 		deep = false;
 
 	// Handle a deep copy situation
+	// 是否是深拷贝 $.extend(true,a,b)
 	if ( typeof target === "boolean" ) {
 		deep = target;
 		target = arguments[1] || {};
@@ -298,30 +299,39 @@ jQuery.extend = jQuery.fn.extend = function() {
 	}
 
 	// Handle case when target is a string or something (possible in deep copy)
+	// 目标元素是否不是object || function
 	if ( typeof target !== "object" && !jQuery.isFunction(target) ) {
 		target = {};
 	}
 
 	// extend jQuery itself if only one argument is passed
+	// 目标元素是否只有一个参数的形式 $.extend(a) a直接挂到jquery上
 	if ( length === i ) {
 		target = this;
 		--i;
 	}
-
+    
+    //循环赋值
+    //$.extend(a,{name:'david'},{age:30},{sex:man})
 	for ( ; i < length; i++ ) {
 		// Only deal with non-null/undefined values
+		// 判断非目标对象是否为空
 		if ( (options = arguments[ i ]) != null ) {
 			// Extend the base object
+			// 键/值 赋值
 			for ( name in options ) {
 				src = target[ name ];
 				copy = options[ name ];
 
 				// Prevent never-ending loop
-				if ( target === copy ) {
+				// 防止循环引用 
+				// eg. var a = {}; $.extend(a,{name:a});此种情况会一直引用name
+				if ( target === copy ) {  // 当 a === a 跳出
 					continue;
 				}
 
 				// Recurse if we're merging plain objects or arrays
+				// 深拷贝
 				if ( deep && copy && ( jQuery.isPlainObject(copy) || (copyIsArray = jQuery.isArray(copy)) ) ) {
 					if ( copyIsArray ) {
 						copyIsArray = false;
@@ -332,9 +342,11 @@ jQuery.extend = jQuery.fn.extend = function() {
 					}
 
 					// Never move original objects, clone them
+					// 递归
 					target[ name ] = jQuery.extend( deep, clone, copy );
 
 				// Don't bring in undefined values
+				// 浅拷贝
 				} else if ( copy !== undefined ) {
 					target[ name ] = copy;
 				}
