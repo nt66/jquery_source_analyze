@@ -67,6 +67,7 @@ var
 	core_pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,
 
 	// Used for splitting on whitespace
+	//空格
 	core_rnotwhite = /\S+/g,
 
 	// A simple way to check for HTML strings
