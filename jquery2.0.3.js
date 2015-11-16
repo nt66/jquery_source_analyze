@@ -425,10 +425,16 @@ jQuery.extend({
 	isArray: Array.isArray,
 
 	isWindow: function( obj ) {
+		// 只有 undefined 和null 与null比较才是true；其他都是false ;null 和undefined是每有对象的
+		// undefined == null == true
+		// null == null == true
+		// false == null == false ...
+		// obj === obj.window 全局对象下的浏览器对象，其他对象无此属性
 		return obj != null && obj === obj.window;
 	},
-
+	//判断是否是数字
 	isNumeric: function( obj ) {
+		// 是否能转数字 & 是否是有限的数字
 		return !isNaN( parseFloat(obj) ) && isFinite( obj );
 	},
 
