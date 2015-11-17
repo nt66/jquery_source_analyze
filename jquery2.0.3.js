@@ -438,8 +438,9 @@ jQuery.extend({
 		// 是否能转数字 & 是否是有限的数字
 		return !isNaN( parseFloat(obj) ) && isFinite( obj );
 	},
-
+	//eg. {}.toString.call([]) == '[object Array]'
 	type: function( obj ) {
+		//null & undefind
 		if ( obj == null ) {
 			return String( obj );
 		}
@@ -448,7 +449,7 @@ jQuery.extend({
 			class2type[ core_toString.call(obj) ] || "object" :
 			typeof obj;
 	},
-
+    //判断是否是对象 {}& new Object()
 	isPlainObject: function( obj ) {
 		// Not plain objects:
 		// - Any object or value whose internal [[Class]] property is not "[object Object]"
@@ -478,6 +479,7 @@ jQuery.extend({
 
 	isEmptyObject: function( obj ) {
 		var name;
+		//for in 无法枚举到自身类型 及枚举类型
 		for ( name in obj ) {
 			return false;
 		}
