@@ -493,6 +493,8 @@ jQuery.extend({
 	// data: string of html
 	// context (optional): If specified, the fragment will be created in this context, defaults to document
 	// keepScripts (optional): If true, will include scripts passed in the html string
+	// 字符串转换成节点
+	// 参数：字符串、文档、是否加script标签
 	parseHTML: function( data, context, keepScripts ) {
 		if ( !data || typeof data !== "string" ) {
 			return null;
@@ -507,16 +509,17 @@ jQuery.extend({
 			scripts = !keepScripts && [];
 
 		// Single tag
+		// 单标签 <li></li>
 		if ( parsed ) {
 			return [ context.createElement( parsed[1] ) ];
 		}
-
+		// 多标签
 		parsed = jQuery.buildFragment( [ data ], context, scripts );
 
 		if ( scripts ) {
 			jQuery( scripts ).remove();
 		}
-
+        //返回数组
 		return jQuery.merge( [], parsed.childNodes );
 	},
 
