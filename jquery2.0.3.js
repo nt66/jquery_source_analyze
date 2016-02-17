@@ -67,6 +67,7 @@ var
 	core_pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,
 
 	// Used for splitting on whitespace
+	//空格
 	core_rnotwhite = /\S+/g,
 
 	// A simple way to check for HTML strings
@@ -466,14 +467,21 @@ jQuery.extend({
 	isArray: Array.isArray,
 
 	isWindow: function( obj ) {
+		// 只有 undefined 和null 与null比较才是true；其他都是false ;null 和undefined是每有对象的
+		// undefined == null == true
+		// null == null == true
+		// false == null == false ...
+		// obj === obj.window 全局对象下的浏览器对象，其他对象无此属性
 		return obj != null && obj === obj.window;
 	},
-
+	//判断是否是数字
 	isNumeric: function( obj ) {
+		// 是否能转数字 & 是否是有限的数字
 		return !isNaN( parseFloat(obj) ) && isFinite( obj );
 	},
-
+	//eg. {}.toString.call([]) == '[object Array]'
 	type: function( obj ) {
+		//null & undefind
 		if ( obj == null ) {
 			return String( obj );
 		}
@@ -482,7 +490,7 @@ jQuery.extend({
 			class2type[ core_toString.call(obj) ] || "object" :
 			typeof obj;
 	},
-
+    //判断是否是对象 {}& new Object()
 	isPlainObject: function( obj ) {
 		// Not plain objects:
 		// - Any object or value whose internal [[Class]] property is not "[object Object]"
@@ -512,6 +520,7 @@ jQuery.extend({
 
 	isEmptyObject: function( obj ) {
 		var name;
+		//for in 无法枚举到自身类型 及枚举类型
 		for ( name in obj ) {
 			return false;
 		}
@@ -525,6 +534,8 @@ jQuery.extend({
 	// data: string of html
 	// context (optional): If specified, the fragment will be created in this context, defaults to document
 	// keepScripts (optional): If true, will include scripts passed in the html string
+	// 字符串转换成节点
+	// 参数：字符串、文档、是否加script标签
 	parseHTML: function( data, context, keepScripts ) {
 		if ( !data || typeof data !== "string" ) {
 			return null;
@@ -539,16 +550,17 @@ jQuery.extend({
 			scripts = !keepScripts && [];
 
 		// Single tag
+		// 单标签 <li></li>
 		if ( parsed ) {
 			return [ context.createElement( parsed[1] ) ];
 		}
-
+		// 多标签
 		parsed = jQuery.buildFragment( [ data ], context, scripts );
 
 		if ( scripts ) {
 			jQuery( scripts ).remove();
 		}
-
+        //返回数组
 		return jQuery.merge( [], parsed.childNodes );
 	},
 
