@@ -184,8 +184,9 @@ jQuery.fn = jQuery.prototype = {
 				}
 
 			// HANDLE: $(expr, $(...))
-			// 3) 选择器表达式( selector [, context] ) 复杂
-			} else if ( !context || context.jquery ) {
+			// 3) 选择器表达式( selector [, context] ) 复杂 $('ul li.box') $('ul->li')
+			// 两个判断语句归根结底 类似等于 $(document).find('li')
+			} else if ( !context || context.jquery ) { 
 				// find() 函数 调用了css 选择器引擎sizzle
 				return ( context || rootjQuery ).find( selector );
 
