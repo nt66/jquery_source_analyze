@@ -36,8 +36,8 @@ var
 
 	// Map over jQuery in case of overwrite
 	_jQuery = window.jQuery,
-
-	// Map over the $ in case of overwrite
+	
+// Map over the $ in case of overwrite
 	_$ = window.$,
 
 	// [[Class]] -> type pairs
@@ -101,7 +101,7 @@ jQuery.fn = jQuery.prototype = {
 	init: function( selector, context, rootjQuery ) {
 		var match, elem;
 
-		// HANDLE: $(""), $(null), $(undefined), $(false)
+		//1) HANDLE: $(""), $(null), $(undefined), $(false)
 		if ( !selector ) {
 			return this;
 		}
@@ -110,20 +110,34 @@ jQuery.fn = jQuery.prototype = {
 		if ( typeof selector === "string" ) {
 			if ( selector.charAt(0) === "<" && selector.charAt( selector.length - 1 ) === ">" && selector.length >= 3 ) {
 				// Assume that strings that start and end with <> are HTML and skip the regex check
+				// $('<html>') $('<div></div>') $('<p>') ... 
 				match = [ null, selector, null ];
+				//match = [null,'<div></div>',null]
 
 			} else {
+				// $('<li>abc') $('#id')
 				match = rquickExpr.exec( selector );
+				//match = ['#id',null,id]
+				//mathc = ['<li>abc','<li>',null]
 			}
 
 			// Match html or make sure no context is specified for #id
+			// 标签和id
 			if ( match && (match[1] || !context) ) {
 
 				// HANDLE: $(html) -> $(array)
+				// 2) 创建html标签 $('<li>')
 				if ( match[1] ) {
+					//context == document对象，或者其它iframe页面的document对象
+					//$('<li>',document) -> context 
+					//$('<li>',$(document)) -> context[0] 
+					// if $(document) console.log(context)  {0:document,context:document,length:1}
 					context = context instanceof jQuery ? context[0] : context;
 
 					// scripts is true for back-compat
+					// parseHTML： 将字符串转成数组  jQuery.parseHTML('<li>1</li><li>2</li>') ->['li',li]
+					// 参数：字符串、上下文、是否支持<script></script>标签执行
+					// merge：1）合并数组、2）数组、对象转成对象字面量
 					jQuery.merge( this, jQuery.parseHTML(
 						match[1],
 						context && context.nodeType ? context.ownerDocument || context : document,
@@ -131,13 +145,17 @@ jQuery.fn = jQuery.prototype = {
 					) );
 
 					// HANDLE: $(html, props)
-					if ( rsingleTag.test( match[1] ) && jQuery.isPlainObject( context ) ) {
+					// 创建带属性的html标签 $('<li>',{title:'hi',html:'abcd'})
+
+					if ( rsingleTag.test( match[1] ) && jQuery.isPlainObject( context ) ) {//匹配正则：单标签、对象字面量
 						for ( match in context ) {
 							// Properties of context are called as methods if possible
+							// 判断对象字面量中是否是函数，有则执行 {title:'hi',html:'abcd'}
 							if ( jQuery.isFunction( this[ match ] ) ) {
 								this[ match ]( context[ match ] );
 
 							// ...and otherwise set as attributes
+							// 如果是不函数，添加属性到当前标签
 							} else {
 								this.attr( match, context[ match ] );
 							}
@@ -147,6 +165,7 @@ jQuery.fn = jQuery.prototype = {
 					return this;
 
 				// HANDLE: $(#id)
+				// 3) 选择器表达式( selector [, context] )  #id
 				} else {
 					elem = document.getElementById( match[2] );
 
@@ -164,7 +183,9 @@ jQuery.fn = jQuery.prototype = {
 				}
 
 			// HANDLE: $(expr, $(...))
+			// 3) 选择器表达式( selector [, context] ) 复杂
 			} else if ( !context || context.jquery ) {
+				// find() 函数 调用了css 选择器引擎sizzle
 				return ( context || rootjQuery ).find( selector );
 
 			// HANDLE: $(expr, context)
@@ -174,6 +195,7 @@ jQuery.fn = jQuery.prototype = {
 			}
 
 		// HANDLE: $(DOMElement)
+		// dom 元素 封装到jquery中，并返回
 		} else if ( selector.nodeType ) {
 			this.context = this[0] = selector;
 			this.length = 1;
@@ -181,6 +203,7 @@ jQuery.fn = jQuery.prototype = {
 
 		// HANDLE: $(function)
 		// Shortcut for document ready
+		// 函数
 		} else if ( jQuery.isFunction( selector ) ) {
 			return rootjQuery.ready( selector );
 		}
@@ -358,10 +381,16 @@ jQuery.extend = jQuery.fn.extend = function() {
 	return target;
 };
 
+//扩展工具方法
 jQuery.extend({
 	// Unique for each copy of jQuery on the page
+	// 生成唯一的字符串 alert($.expando);
 	expando: "jQuery" + ( core_version + Math.random() ).replace( /\D/g, "" ),
 
+	//防止冲突
+	// eg. var my$ = $.noConflict();
+	//     var $ = 123;
+	//     my$(function(){ alert($) });
 	noConflict: function( deep ) {
 		if ( window.$ === jQuery ) {
 			window.$ = _$;
@@ -375,6 +404,15 @@ jQuery.extend({
 	},
 
 	// Is the DOM ready to be used? Set to true once it occurs.
+	// DomContentLoaded 事件
+	// dom加载过程
+	// (1)页面加载过程:
+	// (2)解析html结构
+	// (3)加载外部脚步和样式表文件
+	// (4)解析并执行脚步代码
+	// (4)构造DOM模型。       //ready
+	// (5)加载图片等外部文件。
+    // (6)页面加载完毕。      //load
 	isReady: false,
 
 	// A counter to track how many items to wait for before
@@ -382,6 +420,8 @@ jQuery.extend({
 	readyWait: 1,
 
 	// Hold (or release) the ready event
+	// 推迟加载
+	// eg. $.holdReady(true) 
 	holdReady: function( hold ) {
 		if ( hold ) {
 			jQuery.readyWait++;
@@ -410,6 +450,7 @@ jQuery.extend({
 		readyList.resolveWith( document, [ jQuery ] );
 
 		// Trigger any bound ready events
+		// eg. $(document).on('ready',function(){ ... })
 		if ( jQuery.fn.trigger ) {
 			jQuery( document ).trigger("ready").off("ready");
 		}
@@ -836,16 +877,18 @@ jQuery.ready.promise = function( obj ) {
 		// Catch cases where $(document).ready() is called after the browser event has already occurred.
 		// we once tried to use readyState "interactive" here, but it caused issues like the one
 		// discovered by ChrisS here: http://bugs.jquery.com/ticket/12282#comment:15
+		// dom 已经加载完成
 		if ( document.readyState === "complete" ) {
 			// Handle it asynchronously to allow scripts the opportunity to delay ready
 			setTimeout( jQuery.ready );
 
-		} else {
-
+		} else {// dom 加载没完成
+			// 谁先触发谁先执行
 			// Use the handy event callback
 			document.addEventListener( "DOMContentLoaded", completed, false );
 
 			// A fallback to window.onload, that will always work
+			// 
 			window.addEventListener( "load", completed, false );
 		}
 	}
